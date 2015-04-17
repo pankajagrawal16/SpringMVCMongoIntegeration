@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/data/mongo
+        http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+
+
+	<!-- The Static content resolver -->
+	<mvc:resources location="/resources/" mapping="/resources/**" />
+
+	<!-- The base package to be scanned by the ApplicationContext for controllers -->
+	<context:component-scan
+		base-package="com.optimumalgorithms.controllers,com.optimumalgorithms.utilities,com.optimumalgorithms.services,com.optimumalgorithms.model,com.optimumalgorithms.entities" />
+
+	<!-- Denotes that the mapping is annotation based for the URLs and Controllers -->
+	<mvc:annotation-driven />
+
+	<!-- Load property File -->
+	<context:property-placeholder location="/WEB-INF/config.properties" />
+
+	<!-- The View Resolver -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- Transaction Manager For Hibernate -->
+	<tx:annotation-driven />
+
+	<mongo:mongo host="${mongoDbHost}"
+		port="#{T(java.lang.Integer).parseInt('${mongoDBPort}')}" id="mongo" />
+	<mongo:db-factory dbname="dev_rank" id="mongoDbFactory"
+		mongo-ref="mongo" />
+
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongoDbFactory" ref="mongoDbFactory" />
+	</bean>
+
+	<mongo:repositories base-package="com.optimumalgorithms.model" />
+
+	<!-- Exception Handler -->
+	<bean
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+</beans>

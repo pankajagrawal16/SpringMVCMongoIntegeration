@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	<context:component-scan
+		base-package="com.optimumalgorithms.controllers,com.optimumalgorithms.utilities,com.optimumalgorithms.services,com.optimumalgorithms.model,com.optimumalgorithms.entities" />
+
+	<!-- Use the spring security and Authentication -->
+
+	<security:global-method-security
+		pre-post-annotations="enabled" />
+	<security:http auto-config="true" use-expressions="true">
+
+		<security:form-login always-use-default-target="true"
+			login-page="/" authentication-success-handler-ref="authService"
+			authentication-failure-url="/failLogin" />
+
+
+		<security:logout success-handler-ref="logOutService"
+			delete-cookies="JSESSSION" />
+		<security:session-management>
+			<security:concurrency-control
+				error-if-maximum-exceeded="false" expired-url="/loggedOn"
+				max-sessions="1" />
+		</security:session-management>
+
+		<!-- Session timeout url; If session times out goto this page -->
+		<security:session-management
+			invalid-session-url="/failLogin">
+		</security:session-management>
+	</security:http>
+
+	<security:authentication-manager>
+		<security:authentication-provider
+			user-service-ref="userService">
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<bean id="logOutService" class="com.optimumalgorithms.services.LogOutService" />
+	<bean id="authService" class="com.optimumalgorithms.services.AuthenticationService" />
+	<bean id="userService" class="com.optimumalgorithms.services.LoginService" />
+
+	<!-- Use the spring aop for logging -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+
+	<bean class="com.optimumalgorithms.utilities.LoggingAspect" />
+
+
+</beans>
